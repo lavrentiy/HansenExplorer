@@ -6,8 +6,8 @@ A Flask-based web application for predicting solubility using **Hansen Solubilit
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/lavrentiy/HansenExplorer.git
+cd HansenExplorer
 ```
 
 ### 2. Create a Virtual Environment (Optional but Recommended)
