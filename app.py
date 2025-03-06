@@ -21,7 +21,17 @@ SOLVENTS = {
     "Ethyl acetate": {"d": 15.8, "p": 5.3, "h": 7.2},
     "MIBK": {"d": 15.3, "p": 4.1, "h": 5.1},
     "Heptane": {"d": 15.3, "p": 0.0, "h": 0.0},
-    "Rapeseed oil": {"d": 17.0, "p": 2.0, "h": 5.0}
+    "Rapeseed oil": {"d": 17.0, "p": 2.0, "h": 5.0},
+    "Dimethyl sulfoxide (DMSO)": {"d": 18.4, "p": 16.4, "h": 10.2},
+    "Propylene carbonate": {"d": 20.0, "p": 18.0, "h": 4.1},
+    "N-Methyl-2-pyrrolidone (NMP)": {"d": 18.0, "p": 12.3, "h": 7.2},
+    "γ-Butyrolactone (GBL)": {"d": 19.0, "p": 16.6, "h": 7.4},
+    "Chloroform": {"d": 17.8, "p": 3.1, "h": 5.7},
+    "Acetonitrile": {"d": 15.3, "p": 18.0, "h": 6.1},
+    "Dichloromethane (DCM)": {"d": 18.2, "p": 6.3, "h": 7.1},
+    "Anisole": {"d": 19.2, "p": 1.0, "h": 4.1},
+    "Cyclohexanone": {"d": 17.8, "p": 5.1, "h": 8.4},
+    "Tetrahydrofuran (THF)": {"d": 16.8, "p": 5.7, "h": 8.0}
 }
 
 # Solute presets
@@ -32,7 +42,17 @@ SOLUTES = {
     "Quercetin": {"d": 21.3, "p": 9.4, "h": 14.2, "ro": 4.8},
     "Genistein": {"d": 19.0, "p": 8.0, "h": 11.8, "ro": 5.1},
     "Luteolin": {"d": 20.0, "p": 9.2, "h": 12.7, "ro": 5.0},
-    "Pterostilbene": {"d": 19.2, "p": 6.9, "h": 9.8, "ro": 5.3}
+    "Pterostilbene": {"d": 19.2, "p": 6.9, "h": 9.8, "ro": 5.3},
+    "Apigenin": {"d": 19.6, "p": 7.2, "h": 12.1, "ro": 5.2},  # Found in chamomile, parsley
+    "Baicalein": {"d": 18.7, "p": 8.0, "h": 10.5, "ro": 5.3},  # Found in skullcap
+    "Catechin": {"d": 21.0, "p": 9.1, "h": 14.5, "ro": 5.0},  # Found in tea, cocoa
+    "Epicatechin": {"d": 20.8, "p": 8.9, "h": 13.9, "ro": 5.0},  # Found in green tea, cocoa
+    "Hesperetin": {"d": 19.2, "p": 7.6, "h": 10.7, "ro": 5.1},  # Found in citrus fruits
+    "Kaempferol": {"d": 20.2, "p": 9.0, "h": 13.2, "ro": 5.0},  # Found in broccoli, kale
+    "Myricetin": {"d": 21.4, "p": 9.7, "h": 15.0, "ro": 4.9},  # Found in berries, tea
+    "Naringenin": {"d": 19.0, "p": 7.5, "h": 11.0, "ro": 5.2},  # Found in citrus fruits
+    "Rutin": {"d": 21.6, "p": 9.8, "h": 16.3, "ro": 4.8},  # Found in buckwheat, citrus fruits
+    "Taxifolin": {"d": 20.7, "p": 8.8, "h": 13.7, "ro": 5.0}  # Found in milk thistle, onions
 }
 
 
