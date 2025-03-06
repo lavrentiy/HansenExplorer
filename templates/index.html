@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solubility Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.plot.ly/plotly-2.34.0.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(135deg, #1A2A44 0%, #0F172A 100%);
+      color: #E2E8F0;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      backdrop-filter: blur(10px);
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #FCD34D;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    .plot-container {
+      width: 100%;
+      max-width: 1200px;
+      margin: auto;
+      height: 600px;
+    }
+    .controls {
+      display: grid;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .control-group label {
+      font-weight: 600;
+      color: #94A3B8;
+      font-size: 0.9rem;
+    }
+    .station-search {
+      position: relative;
+    }
+    .station-search input {
+      width: 100%;
+      padding: 12px 16px;
+      background: #2D3748;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      color: #E2E8F0;
+      font-size: 0.95rem;
+    }
+    .station-search input::placeholder { color: #94A3B8; }
+    #search-results {
+      position: absolute;
+      width: 100%;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #2D3748;
+      border-radius: 8px;
+      margin-top: 4px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 10;
+      display: none;
+    }
+    #search-results.active { display: block; }
+    #search-results div {
+      padding: 10px 16px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    #search-results div:hover { background: #4B5563; }
+    select[multiple] {
+      width: 100%;
+      padding: 12px;
+      background: #2D3748;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      color: #E2E8F0;
+      font-size: 0.95rem;
+      height: 180px;
+    }
+    .input-group {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    input[type="number"] {
+      padding: 12px 16px;
+      background: #2D3748;
+      border: 1px solid #4B5563;
+      border-radius: 8px;
+      color: #E2E8F0;
+      font-size: 0.95rem;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #FCD34D;
+      color: #1A2A44;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover { background: #FBBF24; }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 24px 0 16px;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #FCD34D;
+    }
+    .last-updated {
+      font-size: 0.85rem;
+      color: #94A3B8;
+    }
+    .table-container {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #4B5563;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      background: #2D3748;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      text-align: left;
+      color: #94A3B8;
+      position: sticky;
+      top: 0;
+    }
+    td {
+      padding: 12px 16px;
+      font-size: 0.95rem;
+      color: #E2E8F0;
+      border-top: 1px solid #4B5563;
+    }
+    tr:first-child td { border-top: none; }
+    tbody tr { transition: background 0.2s; }
+    tbody tr:hover { background: #334155; }
+    .solubility {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+    }
+    .soluble { background: #059669; color: white; }
+    .partial { background: #D97706; color: white; }
+    .insoluble { background: #DC2626; color: white; }
+    #message {
+      text-align: center;
+      padding: 24px;
+      color: #94A3B8;
+      font-style: italic;
+    }
+    .loading {
+      text-align: center;
+      padding: 24px;
+    }
+    .spinner {
+      display: inline-block;
+      width: 30px;
+      height: 30px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #FCD34D;
+      animation: spin 1s ease-in-out infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Solubility Calculator</h1>
+
+    <div class="controls">
+      <div class="control-group">
+        <label for="solute-select">Select a Solute:</label>
+        <select id="solute-select">
+          <option value="">-- Choose a solute --</option>
+          {% for solute, values in solutes.items() %}
+            <option value="{{ solute }}" data-d="{{ values.d }}" data-p="{{ values.p }}" data-h="{{ values.h }}" data-ro="{{ values.ro }}">
+              {{ solute }}
+            </option>
+          {% endfor %}
+        </select>
+        <script>
+          document.getElementById("solute-select").addEventListener("change", function() {
+            let selectedOption = this.options[this.selectedIndex];
+            if (selectedOption.value) {
+              document.getElementById("solute-d").value = selectedOption.dataset.d;
+              document.getElementById("solute-p").value = selectedOption.dataset.p;
+              document.getElementById("solute-h").value = selectedOption.dataset.h;
+              document.getElementById("solute-ro").value = selectedOption.dataset.ro;
+            } else {
+              document.getElementById("solute-d").value = "";
+              document.getElementById("solute-p").value = "";
+              document.getElementById("solute-h").value = "";
+              document.getElementById("solute-ro").value = "";
+            }
+            console.log("Selected solute:", selectedOption.value);
+          });
+        </script>
+
+        <label>Solute HSP Parameters</label>
+        <div class="input-group">
+          <input type="number" id="solute-d" placeholder="δD (MPa½)" step="0.1" min="0">
+          <input type="number" id="solute-p" placeholder="δP (MPa½)" step="0.1" min="0">
+          <input type="number" id="solute-h" placeholder="δH (MPa½)" step="0.1" min="0">
+          <input type="number" id="solute-ro" placeholder="Ro (MPa½)" step="0.1" min="0" value="5.0">
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="solvent-search">Find Solvents</label>
+        <div class="station-search">
+          <input type="text" id="solvent-search" placeholder="Search for solvents...">
+          <div id="search-results"></div>
+        </div>
+      </div>
+
+      <div class="control-group">
+        <label for="solvents">Selected Solvents</label>
+        <select multiple id="solvents">
+          {% for solvent in solvents %}
+            <option value="{{ solvent }}">{{ solvent }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button id="calculate">Calculate Solubility</button>
+    </div>
+
+    <div class="section-header">
+      <h2>Results</h2>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Solvent</th>
+            <th>δD (MPa½)</th>
+            <th>δP (MPa½)</th>
+            <th>δH (MPa½)</th>
+            <th>Ra (MPa½)</th>
+            <th>RED</th>
+            <th>Solubility</th>
+          </tr>
+        </thead>
+        <tbody id="results"></tbody>
+      </table>
+      <div id="message" style="display: none;">Enter solute parameters and select solvents to calculate.</div>
+      <div id="loading" class="loading" style="display: none;">
+        <div class="spinner"></div>
+      </div>
+    </div>
+
+    <!-- 3D Plot container -->
+    <div id="plot-container" class="plot-container"></div>
+  </div>
+
+  <script>
+    const systemSolvents = new Set([{% for solvent in solvents %}"{{ solvent }}",{% endfor %}]);
+
+    function updateLastUpdated() {
+      const now = new Date();
+      document.getElementById("last-updated").textContent =
+        `Last updated: ${now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })}`;
+    }
+
+    function showLoading() {
+      document.getElementById("results").innerHTML = "";
+      document.getElementById("message").style.display = "none";
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("plot-container").innerHTML = "";
+      console.log("Loading..."); // Debug message
+    }
+
+    function hideLoading() {
+      document.getElementById("loading").style.display = "none";
+      console.log("Loading complete"); // Debug message
+    }
+
+    function showMessage(text) {
+      document.getElementById("message").textContent = text;
+      document.getElementById("message").style.display = "block";
+      console.log("Message:", text); // Debug message
+    }
+
+    function calculateSolubility() {
+      const solute_d = document.getElementById("solute-d").value;
+      const solute_p = document.getElementById("solute-p").value;
+      const solute_h = document.getElementById("solute-h").value;
+      const solute_ro = document.getElementById("solute-ro").value;
+      const selected = Array.from(document.getElementById("solvents").selectedOptions).map(opt => opt.value);
+
+      console.log("Calculating solubility with parameters:", { solute_d, solute_p, solute_h, solute_ro, selected });
+
+      if (!solute_d || !solute_p || !solute_h || !solute_ro) {
+        showMessage("Please enter all solute HSP parameters and Ro.");
+        return;
+      }
+      if (selected.length === 0) {
+        showMessage("Please select at least one solvent.");
+        return;
+      }
+
+      showLoading();
+
+      fetch('/api/calculate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          solute_d: solute_d,
+          solute_p: solute_p,
+          solute_h: solute_h,
+          solute_ro: solute_ro,
+          solvents: selected
+        })
+      })
+      .then(response => {
+        console.log("API response status:", response.status);
+        if (!response.ok) throw new Error('Calculation failed');
+        return response.json();
+      })
+      .then(data => {
+        console.log("Received data from API:", data);
+        hideLoading();
+        if (data.error) {
+          showMessage(data.error);
+          return;
+        }
+        if (data.plot_json) {
+          try {
+            const fig = JSON.parse(data.plot_json);
+            console.log("Parsed plot JSON:", fig);
+            Plotly.newPlot('plot-container', fig.data, fig.layout);
+          } catch (e) {
+            console.error("Error parsing plot JSON:", e);
+          }
+        } else {
+          console.warn("No plot_json key in API response");
+        }
+        // Populate the results table
+        const tbody = document.getElementById("results");
+        tbody.innerHTML = "";
+        for (let solvent in data.results) {
+          const res = data.results[solvent];
+          const solubilityClass = res.solubility === "Soluble" ? "soluble" : res.solubility === "Partially Soluble" ? "partial" : "insoluble";
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${solvent}</td>
+            <td>${res.d}</td>
+            <td>${res.p}</td>
+            <td>${res.h}</td>
+            <td>${res.ra}</td>
+            <td>${res.red}</td>
+            <td><span class="solubility ${solubilityClass}">${res.solubility}</span></td>
+          `;
+          tbody.appendChild(row);
+        }
+        updateLastUpdated();
+      })
+      .catch(error => {
+        hideLoading();
+        showMessage("Failed to calculate. Please try again.");
+        console.error("Calculation error:", error);
+      });
+    }
+
+    document.getElementById("solvent-search").addEventListener("input", function(e) {
+      const query = e.target.value.trim();
+      const resultsContainer = document.getElementById("search-results");
+      if (query.length < 1) {
+        resultsContainer.innerHTML = "";
+        resultsContainer.classList.remove("active");
+        return;
+      }
+      fetch('/api/search_solvents?q=' + encodeURIComponent(query))
+        .then(response => response.json())
+        .then(data => {
+          console.log("Solvent search data:", data);
+          resultsContainer.innerHTML = "";
+          if (data.length === 0) {
+            resultsContainer.innerHTML = "<div>No solvents found</div>";
+            resultsContainer.classList.add("active");
+            return;
+          }
+          data.forEach(solvent => {
+            const div = document.createElement("div");
+            div.textContent = solvent.name;
+            div.onclick = () => {
+              addSolvent(solvent.name);
+              document.getElementById("solvent-search").value = "";
+              resultsContainer.innerHTML = "";
+              resultsContainer.classList.remove("active");
+            };
+            resultsContainer.appendChild(div);
+          });
+          resultsContainer.classList.add("active");
+        });
+    });
+
+    document.addEventListener("click", function(e) {
+      const searchInput = document.getElementById("solvent-search");
+      const resultsContainer = document.getElementById("search-results");
+      if (e.target !== searchInput && !resultsContainer.contains(e.target)) {
+        resultsContainer.classList.remove("active");
+      }
+    });
+
+    function addSolvent(name) {
+      const select = document.getElementById("solvents");
+      if (systemSolvents.has(name)) {
+        for (let i = 0; i < select.options.length; i++) {
+          if (select.options[i].value === name) {
+            select.options[i].selected = true;
+            console.log("Added solvent:", name);
+            return;
+          }
+        }
+      }
+    }
+
+    document.getElementById("calculate").addEventListener("click", calculateSolubility);
+    updateLastUpdated();
+  </script>
+</body>
+</html>
