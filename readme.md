@@ -41,3 +41,6 @@ pip install flask numpy pandas plotly
 
 ## License
 This project is licensed under the **MIT License**.
+
+## DISCLAIMER: This tool uses Hansen Solubility Parameters (HSP) as a theoretical model to estimate solubility.
+It does NOT account for temperature effects, solvent mixtures, pH variations, or experimental data. Real-life solubility may differ significantly. For laboratory or industrial applications, consult empirical solubility data.
